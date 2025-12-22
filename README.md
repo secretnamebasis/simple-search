@@ -1,6 +1,8 @@
 # SovereignSearch
 
-SovereignSearch is a desktop Electron app for managing DERO SCIDs and nodes with live tabs, bookmarks, and a start page.
+SovereignSearch is a desktop Electron app for browsing DERO / TELA websites and applications, managing SCIDs and nodes with live tabs, bookmarks, and a start page.
+
+**This software is alpha stage software, use only for testing and evaluation purposes.**
 ## Features
 
 - Multiple tabs with SCID pages or blank/start page
@@ -28,8 +30,11 @@ cd SovereignSearch
 ```
 npm install
 ```
-
-3. Run the app:
+3. Run tela-server in a terminal
+```
+./tela-server
+```
+4. Run the app in another terminal:
 ```
 npm start
 ```
