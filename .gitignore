@@ -1,0 +1,18 @@
+# Node / Electron
+node_modules/
+dist/
+build/
+
+# Electron
+*.log
+.DS_Store
+
+# Local data
+*.sqlite
+*.db
+scidBookmarks.json
+nodeBookmarks.json
+
+# OS
+Thumbs.db
+

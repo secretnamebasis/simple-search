@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Start Page</title>
+  <style>
+    body {
+      font-family: Arial, Helvetica, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background: #f5f5f5;
+    }
+    h1 { font-size: 24px; margin-bottom: 10px; }
+    h2 { font-size: 18px; margin-top: 20px; }
+    ul { list-style-type: none; padding-left: 0; }
+    li { padding: 6px 0; cursor: pointer; }
+    li:hover { background: #ddd; }
+    .bookmark-name { font-weight: bold; }
+  </style>
+</head>
+<body>
+  <h1>Welcome to Tela Start Page</h1>
+  <p>Select a SCID or Node to get started, or create a new tab.</p>
+
+  <h2>SCID Bookmarks</h2>
+  <ul id="scidBookmarks"></ul>
+
+  <h2>Node Bookmarks</h2>
+  <ul id="nodeBookmarks"></ul>
+
+  <script>
+    // Use preload API if available
+    const api = window.startAPI || window.electronAPI;
+
+    async function renderBookmarks() {
+      const scids = await api.loadSCIDBookmarks();
+      const nodes = await api.loadNodeBookmarks();
+
+      const scidList = document.getElementById("scidBookmarks");
+      scidList.innerHTML = "";
+      scids.forEach(b => {
+        const li = document.createElement("li");
+        li.textContent = b.name + " (" + b.scid.slice(0,12) + "...)";
+        li.onclick = () => alert(`SCID clicked: ${b.scid}`);
+        scidList.appendChild(li);
+      });
+
+      const nodeList = document.getElementById("nodeBookmarks");
+      nodeList.innerHTML = "";
+      nodes.forEach(b => {
+        const li = document.createElement("li");
+        li.textContent = b.name + " (" + b.node + ")";
+        li.onclick = () => alert(`Node clicked: ${b.node}`);
+        nodeList.appendChild(li);
+      });
+    }
+
+    renderBookmarks();
+  </script>
+</body>
+</html>

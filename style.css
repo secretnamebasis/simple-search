@@ -1,0 +1,185 @@
+/* ---------- Variables ---------- */
+:root {
+  --topbar-height: 54px;
+  --sidebar-width: 260px;
+  --sidebar-collapsed-width: 0;
+}
+
+/* ---------- Global ---------- */
+html, body {
+  height: 100%;
+  margin: 0;
+  font-family: Arial, Helvetica, sans-serif;
+  overflow: hidden;
+  background: #f5f5f5;
+}
+
+#app {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ---------- Top Bar ---------- */
+#topBar {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 6px;
+  background: #f0f0f0;
+  box-sizing: border-box;
+  z-index: 10;
+  flex-shrink: 0;
+}
+
+#inputRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+
+
+/* ---------- Tabs ---------- */
+#tabBar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-right: 8px;
+}
+
+#newTabBtn {
+  padding: 4px 6px;
+  cursor: pointer;
+}
+
+#tabsContainer {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  overflow-y: hidden;
+  white-space: nowrap;
+  height: 30px;
+  padding: 0 10px;
+  border-bottom: 1px solid #ccc;
+  align-items: center;       /* center text vertically */
+  scrollbar-width: thin;
+}
+
+#tabsContainer::-webkit-scrollbar {
+  height: 8px;              /* Thin scrollbar */
+}
+
+#tabsContainer::-webkit-scrollbar-thumb {
+  background: #ccc;
+  border-radius: 4px;
+}
+
+.tab {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 200px;
+  padding: 5px 8px;
+  cursor: pointer;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 14px;
+}
+
+.tab-title {
+  display: inline-block;
+  max-width: 140px;         /* Room for close button */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tab.active {
+  background: #fff;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.12);
+}
+.tab .close {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+/* ---------- Input Groups ---------- */
+.input-group {
+  position: relative;
+  display: flex;
+  align-items: center;
+  z-index: 20; /* ensures inputs above BrowserView */
+}
+
+.input-group input {
+  width: 330px;
+  padding: 5px 35px 5px 5px;
+  font-size: 14px;
+}
+
+/* save / dropdown buttons */
+.save-btn {
+  position: absolute;
+  right: 6px;
+  top: 0;
+  bottom: 0;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  z-index: 21;
+}
+
+/* ---------- Bookmark ---------- */
+.bookmark-item {
+  padding: 6px 10px;
+  display: flex;
+  justify-content: space-between;
+  cursor: pointer;
+}
+.bookmark-item:hover { background: #eee; }
+.bookmark-delete { color: red; border: none; background: none; cursor: pointer; }
+
+/* ---------- Main Area ---------- */
+#mainArea {
+  flex: 1;
+  display: flex;
+  overflow: hidden;
+}
+
+/* Sidebar */
+#sidebar {
+  width: var(--sidebar-width);
+  background: #111;
+  color: #fff;
+  border-right: 1px solid #333;
+  overflow-y: auto;
+  transition: width 0.2s ease;
+  flex-shrink: 0;
+  padding: 10px;
+}
+#sidebar.collapsed {
+  width: var(--sidebar-collapsed-width);
+  padding: 0;
+}
+
+/* Bookmark lists inside sidebar */
+#nodeBookmarkList,
+#scidBookmarkList {
+  margin-top: 4px;
+}
+.bookmark-item {
+  color: #fff;
+}
+.bookmark-item:hover { background: #222; }
+
+/* BrowserView container */
+#browserArea {
+  flex: 1;
+  position: relative;
+  background: #fff;
+}

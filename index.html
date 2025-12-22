@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Sovereign Search</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<div id="app">
+
+  <!-- ================= TOP BAR ================= -->
+  <div id="topBar">
+
+        <div id="tabBar">
+      <button id="newTabBtn">＋</button>
+      <div id="tabsContainer"></div>
+    </div>
+    
+    <div id="inputRow">
+      <button id="sidebarToggleBtn">☰</button>
+
+     <!-- Node input with star -->
+  <div class="input-group">
+      <input id="nodeInput" type="text" placeholder="127.0.0.1:10102">
+      <button id="saveNodeBookmarkButton" class="save-btn">⭐</button>
+      </div>
+
+  <!-- SCID input with star -->
+  <div class="input-group">
+      <input id="scidInput" type="text" placeholder="SCID">
+      <button id="saveSCIDBookmarkButton" class="save-btn">⭐</button>
+</div>
+
+      <button id="loadTelaButton">Load SCID</button>
+      
+    </div>
+
+
+
+  </div>
+
+  <!-- ================= MAIN AREA ================= -->
+  <div id="mainArea">
+
+    <!-- ===== SIDEBAR (Bookmarks) ===== -->
+    <aside id="sidebar" class="collapsed">
+
+      <h3>Node Bookmarks</h3>
+      <div id="sidebarNodeList"></div>
+
+      <h3>SCID Bookmarks</h3>
+      <div id="sidebarSCIDList"></div>
+
+    </aside>
+
+    <!-- ===== BrowserView lives here ===== -->
+    <div id="browserArea"></div>
+
+  </div>
+
+</div>
+
+
+
+<script src="renderer.js" defer></script>
+</body>
+</html>
