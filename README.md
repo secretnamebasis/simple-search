@@ -9,9 +9,10 @@ The Electron based application should work on Windows, Linux and MacOS.
 
 - Multiple tabs with SCID pages or blank/start page
 - Node and SCID bookmarks
-- Sidebar for quick navigation
+- Sidebar for quick navigation bookmarks
 - Live tab title updates
 - Modal for saving bookmarks
+- Search SCIDs
 ## Requirements
 
 - Node.js >= 18.x
@@ -32,26 +33,27 @@ cd SovereignSearch
 ```
 npm install
 ```
-3. Run tela-server in a terminal 1
+3. Run tela-server in a terminal:
 ```
 ./tela-server
 ```
-4. Start Gnomon with flags in a terminal 2
+4. Start Gnomon with flags in a terminal:
 ```
 ./gnomonindexer --daemon-rpc-address=<Your node address>:10102 --fastsync --num-parallel-blocks=5 --api-address=127.0.0.1:8099 --search-filter="DOC1"
 ```
-5. Run the app in terminal 3:
+5. Run the application in a terminal:
 ```
 npm start
 ```
 
 ## Usage
 
-- Use the top bar to input Node & SCID
+- Use the top bar to input Node & SCID address
 - Press "Load Tela" to open SCID in a new tab
 - Click ⭐ to save bookmarks
 - Toggle sidebar for quick access to saved nodes/SCIDs
-- New blank tab opens the Start Page
+- New blank tab opens the search Page
+- Searched SCIDs will appear in the topbar when selected, after "Load Tela"
 
 ## To-Do's
 
@@ -60,6 +62,8 @@ npm start
 - [ ] Sidebar collapse when pointer leaves, closes onClick somewhere outside sidebar
 - [ ] Gnomon settings menu + Gnomon alive/ready indicator
 - [ ] Autostart tela-server and Gnomon 
+- [ ] Human-readable domain names for nodes
+- [ ] Live tab title updates when not resolved
 
 ### Search
 - [ ] Ratings filter
@@ -70,6 +74,10 @@ npm start
 - [ ] Re-write color schemes so that dark/light/system mode works 
 - [ ] With really big dApps there isn't a instant page view (I mean more than 3/4 sec) UX solution is showing what is going on in the background or an animation.
 - [ ] Consistent interface
+
+## Preview
+
+https://x.com/ArcaneSphere/status/2003857606881005760?s=20
 
 ## Contributing
 
