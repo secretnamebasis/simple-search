@@ -32,11 +32,15 @@ cd SovereignSearch
 ```
 npm install
 ```
-3. Run tela-server in a terminal
+3. Run tela-server in a terminal 1
 ```
 ./tela-server
 ```
-4. Run the app in another terminal:
+4. Start Gnomon with flags in a terminal 2
+```
+./gnomonindexer --daemon-rpc-address=<Your node address>:10102 --fastsync --num-parallel-blocks=5 --api-address=127.0.0.1:8099 --search-filter="DOC1"
+```
+5. Run the app in terminal 3:
 ```
 npm start
 ```
