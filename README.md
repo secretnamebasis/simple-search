@@ -52,20 +52,20 @@ npm start
 ## To-Do's
 
 ### Core
-[ ] Only index.html pages will load (most dApps ar good), considering a solution to this, but yeah many options..
-[ ] Sidebar collapse when pointer leaves, closes onClick somewhere outside sidebar
-[ ] Gnomon settings menu + Gnomon alive/ready indicator
-[ ] Autostart tela-server and Gnomon 
+- [ ] Only index.html pages will load (most dApps ar good), considering a solution to this, but yeah many options..
+- [ ] Sidebar collapse when pointer leaves, closes onClick somewhere outside sidebar
+- [ ] Gnomon settings menu + Gnomon alive/ready indicator
+- [ ] Autostart tela-server and Gnomon 
 
 ### Search
-[ ] Ratings filter
+- [ ] Ratings filter
 
 ### User experience
-[ ] Special characters in the SCID and Node entry won't bookmark, no need for but yeah UX
-[ ] Not all dApps align good in the browserview, it works but need perfection
-[ ] Re-write color schemes so that dark/light/system mode works 
-[ ] With really big dApps there isn't a instant page view (I mean more than 3/4 sec) UX solution is showing what is going on in the background or an animation.
-[ ] Consistent interface
+- [ ] Special characters in the SCID and Node entry won't bookmark, no need for but yeah UX
+- [ ] Not all dApps align good in the browserview, it works but need perfection
+- [ ] Re-write color schemes so that dark/light/system mode works 
+- [ ] With really big dApps there isn't a instant page view (I mean more than 3/4 sec) UX solution is showing what is going on in the background or an animation.
+- [ ] Consistent interface
 
 ## Contributing
 
