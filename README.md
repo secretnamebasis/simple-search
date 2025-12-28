@@ -71,7 +71,7 @@ npm start
 ### User experience
 - [ ] Special characters in the SCID and Node entry won't bookmark, no need for but yeah UX
 - [ ] Not all dApps align good in the browserview, it works but need perfection
-- [ ] Re-write color schemes so that dark/light/system mode works 
+- [x] Re-write color schemes so that dark/light/system mode works 
 - [ ] With really big dApps there isn't a instant page view (I mean more than 3/4 sec) UX solution is showing what is going on in the background or an animation.
 - [ ] Consistent interface
 
