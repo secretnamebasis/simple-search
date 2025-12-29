@@ -203,7 +203,7 @@ let mainWindow = null;
 const browserViews = new Map();  // tabId → BrowserView
 let activeTabId = null;
 const activeScids = new Map();   // scid → tabId
-let sidebarCollapsed = false;
+let sidebarCollapsed = true;
 let currentModalView = null;     // Modal overlay
 
 // ---------------- Window ----------------
