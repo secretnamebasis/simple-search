@@ -37,7 +37,7 @@ npm install
 ```
 ./tela-server
 ```
-4. Start Gnomon with flags in a terminal:
+4. ~~Start Gnomon with flags in a terminal:~~
 ```
 ./gnomonindexer --daemon-rpc-address=<Your node address>:10102 --fastsync --num-parallel-blocks=5 --api-address=127.0.0.1:8099 --search-filter="DOC1"
 ```
@@ -80,6 +80,10 @@ npm start
 - [x] Start/Stop Gnomon
 - [ ] Autostart Gnomon
 - [ ] Startpage refresh on Gnomon start 
+
+### Readme Page
+- [ ] How to run you own node Guide
+- [ ] Where to find remote nodes
 
 ### Search
 - [ ] Ratings filter
