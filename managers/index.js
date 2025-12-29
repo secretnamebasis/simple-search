@@ -1,6 +1,6 @@
 import { createSettingsManager } from './settings.js';
 import { createGnomonManager } from './gnomon.js';
-import { createWebTorrentManager } from './webtorrent.js';
+import { createReadMe } from './readme.js';
 
 export const managers = {
   settings: {
@@ -9,8 +9,8 @@ export const managers = {
   gnomon: {
     create: createGnomonManager
   },
-  webtorrent: {
-    create: createWebTorrentManager
+  readme: {
+    create: createReadMe
   }
 };
 
