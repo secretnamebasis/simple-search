@@ -58,7 +58,7 @@ document.addEventListener("DOMContentLoaded", () => {
     list.forEach(b => {
       const div = document.createElement("div");
       div.className = "bookmark-item";
-      div.innerHTML = `<span>${b.name}</span><button class="bookmark-delete">❌</button>`;
+      div.innerHTML = `<span class="bookmark-name">${b.name}</span><button class="bookmark-delete">✖</button>`;
 
       div.querySelector("span").onclick = () => {
         nodeInput.value = b.node;
@@ -80,7 +80,7 @@ document.addEventListener("DOMContentLoaded", () => {
     list.forEach(b => {
       const div = document.createElement("div");
       div.className = "bookmark-item";
-      div.innerHTML = `<span>${b.name}</span><button class="bookmark-delete">❌</button>`;
+      div.innerHTML = `<span class="bookmark-name">${b.name}</span><button class="bookmark-delete">✖</button>`;
 
       div.querySelector("span").onclick = () => {
         scidInput.value = b.scid;

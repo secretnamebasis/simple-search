@@ -264,19 +264,28 @@ function createWindow() {
   mainWindow = new BrowserWindow({
     width: 1400,
     height: 960,
+    show: false,
     webPreferences: {
       preload: path.join(__dirname, "preload.js"),
       contextIsolation: true,
       nodeIntegration: false,
-      webSecurity: false
+      webSecurity: true
     }
   });
 
+  
+
   const indexPath = path.join(__dirname, "index.html");
-  mainWindow.loadFile(indexPath).catch(err => console.error(err));
+  mainWindow.loadFile(indexPath).catch(console.error);
+
+  mainWindow.once("ready-to-show", () => {
+    mainWindow.maximize();
+    mainWindow.show();
+  });
 
   mainWindow.on("resize", () => updateActiveBrowserViewBounds());
 }
+
 
 // ---------------- BrowserView helpers ----------------
 function computeBrowserViewBounds() {
@@ -305,7 +314,7 @@ function showModalOverlay(modalBounds, bookmarkType, bookmarkValue) {
       preload: path.join(__dirname, "modal-preload.js"),
       contextIsolation: true,
       nodeIntegration: false,
-      webSecurity: false
+      webSecurity: true
     }
   });
 
@@ -379,8 +388,10 @@ ipcMain.handle("tela:start", async (event, { node, scid }) => {
 
     const view = new BrowserView({
       webPreferences: {
+        sandbox: true,
         contextIsolation: true,
         nodeIntegration: false,
+        webSecurity: true,
         preload: path.join(__dirname, 'wallet-preload.js')
       }
     });

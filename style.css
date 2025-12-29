@@ -207,26 +207,57 @@ html, body {
 }
 
 /* =========================================================
-   BOOKMARKS
+   BOOKMARK ITEM
    ========================================================= */
 
 .bookmark-item {
-  padding: 6px 10px;
+  padding: 8px 12px;                 /* slightly more spacing */
   display: flex;
   justify-content: space-between;
+  align-items: center;               /* vertical centering */
   cursor: pointer;
   color: var(--text-primary);
+  background: var(--bg-panel);       /* panel bg for contrast */
+  border-radius: 6px;                /* subtle rounded corners */
+  font-size: 14px;
+  font-weight: 500;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  transition: background 0.2s ease, color 0.2s ease;
 }
 
 .bookmark-item:hover {
   background: var(--bg-hover);
+  color: var(--text-primary);
 }
 
+.bookmark-item.active {
+  background: var(--accent);
+  color: #fff;
+}
+
+/* Bookmark name text */
+.bookmark-name {
+  flex: 1;                           /* take remaining space */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Delete button */
 .bookmark-delete {
-  color: red;
+  color: #1c010137;                     /* more subtle than pure red */
   border: none;
   background: none;
   cursor: pointer;
+  font-size: 14px;
+  margin-left: 8px;
+  transition: color 0.2s ease;
+}
+
+.bookmark-delete:hover {
+  color: #ff0000;
 }
 
 /* =========================================================
@@ -439,6 +470,29 @@ html, body {
 }
 
 /* =========================================================
+   README DOCUMENT
+   ========================================================= */
+
+.readme-document {
+  padding: 20px 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.readme-document h2 {
+  margin-bottom: 20px;
+}
+
+.readme-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 16px;
+}
+
+
+/* =========================================================
    MANUAL THEME OVERRIDES (for toggle)
    ========================================================= */
 
@@ -448,6 +502,7 @@ html, body {
   --bg-panel: #ffffff;
   --bg-topbar: #f0f0f0;
   --bg-sidebar: #f8f8f8;
+  --bg-hover: #eaeaea;
   --text-primary: #111111;
   --text-secondary: #555555;
   --border-color: #cccccc;
@@ -460,6 +515,7 @@ html, body {
   --bg-panel: #141414;
   --bg-topbar: #1a1a1a;
   --bg-sidebar: #111111;
+  --bg-hover: #222222;
   --text-primary: #ffffff;
   --text-secondary: #aaaaaa;
   --border-color: #333333;
