@@ -1,4 +1,6 @@
 let gnomonProcess = null;
+let telaServerProcess = null;
+
 
 const { app, BrowserWindow, BrowserView, ipcMain } = require("electron");
 const path = require("path");
@@ -486,7 +488,11 @@ ipcMain.handle('bookmark-save-from-modal', async (event, { name, type, value }) 
 });
 
 // ---------------- App lifecycle ----------------
-app.whenReady().then(createWindow);
+app.whenReady().then(() => {
+  startTelaServer();
+  createWindow();
+});
+
 
 app.on("activate", () => {
   if (BrowserWindow.getAllWindows().length === 0) createWindow();
@@ -495,6 +501,58 @@ app.on("activate", () => {
 app.on("window-all-closed", () => {
   if (process.platform !== "darwin") app.quit();
 });
+// ---------------- Auto start and stop tela-server ----------------
+
+function startTelaServer() {
+  if (telaServerProcess) return;
+
+  console.log("Starting tela-server...");
+
+  const telaPath = path.join(__dirname, "tela-server");
+
+  telaServerProcess = spawn(telaPath, [], {
+    stdio: ["ignore", "pipe", "pipe"]
+  });
+
+  telaServerProcess.stdout.on("data", (data) => {
+    console.log("[tela]", data.toString());
+  });
+
+  telaServerProcess.stderr.on("data", (data) => {
+    console.error("[tela]", data.toString());
+  });
+
+  telaServerProcess.on("exit", (code) => {
+    console.log("tela-server exited:", code);
+    telaServerProcess = null;
+  });
+}
+
+function stopTelaServerAndWait() {
+  return new Promise((resolve) => {
+    if (!telaServerProcess) return resolve();
+
+    console.log("Stopping tela-server...");
+
+    telaServerProcess.once("exit", () => {
+      telaServerProcess = null;
+      console.log("tela-server stopped.");
+      resolve();
+    });
+
+    telaServerProcess.kill("SIGINT");
+
+    // Safety fallback
+    setTimeout(() => {
+      if (telaServerProcess) {
+        console.log("Force killing tela-server...");
+        telaServerProcess.kill("SIGKILL");
+        telaServerProcess = null;
+      }
+      resolve();
+    }, 5000);
+  });
+}
 
 
 // ---------------- Gnomon clean shutdown ----------------
@@ -529,18 +587,20 @@ function stopGnomonAndWait() {
 
 // Hook into app shutdown
 app.on("before-quit", async (e) => {
-  if (gnomonProcess) {
-    e.preventDefault(); // Pause quitting
+  if (gnomonProcess || telaServerProcess) {
+    e.preventDefault();
+
     await stopGnomonAndWait();
-    app.quit(); // Resume quit after Gnomon stops
+    await stopTelaServerAndWait();
+
+    app.quit();
   }
 });
 
 app.on("window-all-closed", async () => {
   if (process.platform !== "darwin") {
-    if (gnomonProcess) {
-      await stopGnomonAndWait();
-    }
+    await stopGnomonAndWait();
+    await stopTelaServerAndWait();
     app.quit();
   }
 });
@@ -548,11 +608,13 @@ app.on("window-all-closed", async () => {
 // Catch unexpected exits
 process.on("SIGINT", async () => {
   await stopGnomonAndWait();
+  await stopTelaServerAndWait();
   process.exit();
 });
 
 process.on("SIGTERM", async () => {
   await stopGnomonAndWait();
+  await stopTelaServerAndWait();
   process.exit();
 });
 

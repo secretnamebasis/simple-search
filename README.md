@@ -23,9 +23,6 @@ The Electron based application should work on Windows, Linux and MacOS.
 1. Clone the repository:
 ```
 git clone https://github.com/ArcaneSphere/SovereignSearch.git
-```
-
-```
 cd SovereignSearch
 ```
 
@@ -33,11 +30,7 @@ cd SovereignSearch
 ```
 npm install
 ```
-3. Run tela-server in a terminal:
-```
-./tela-server
-```
-4. Run the application in a terminal:
+3. Run the application in a terminal:
 ```
 npm start
 ```
@@ -54,6 +47,8 @@ npm start
 ## To-Do's
 
 ### Core
+- [x] Autostart TELA-Server
+- [ ] Autostart Gnomon 
 - [ ] Only index.html pages will load (most dApps are good), considering a solution to this, but yeah many options...
 
 ### Input (NODE)
@@ -81,7 +76,6 @@ npm start
 - [x] Gnomon Manager Menu
 - [x] Gnomon alive/ready indicator
 - [x] Start/Stop Gnomon
-- [ ] Autostart Gnomon
 - [ ] Startpage refresh on Gnomon start
 - [ ] Display getInfo
 - [ ] Saved Live Logs on page change/refresh
