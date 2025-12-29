@@ -20,7 +20,6 @@
 </script>
 
 
-
 <!-- Use merged app CSS -->
 <link rel="stylesheet" href="style.css">
 
@@ -49,6 +48,7 @@ const apiBase = "http://127.0.0.1:8099/api";
 
 let allResults = [];
 let fuse;
+const loadedSCIDs = new Set();
 
 // Fetch all indexed SCIDs
 async function fetchAllSCIDs() {
@@ -168,7 +168,28 @@ document.getElementById("searchBox").addEventListener("input", e => {
   filterResults(e.target.value);
 });
 
+// Live update handler
+if (window.electronAPI?.onGnomonLog) {
+  window.electronAPI.onGnomonLog(async (line) => {
+    const match = line.match(/scid:\s*([a-z0-9]+)/i);
+    if (!match) return;
+
+    const scid = match[1];
+    if (loadedSCIDs.has(scid)) return;
+    loadedSCIDs.add(scid);
+
+    const res = await fetchSCIDData(scid);
+    if (!res) return;
+
+    allResults.push(res);
+    fuse.setCollection(allResults);
+    renderResults(allResults);
+    document.getElementById("status").textContent = `Loaded ${allResults.length} SCIDs (live update)`;
+  });
+}
+
 loadSCIDs();
+
 </script>
 
 </body>

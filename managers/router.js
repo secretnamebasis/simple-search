@@ -1,31 +1,31 @@
 import { managers } from "./index.js";
 
 const root = document.getElementById("managerRoot");
-const instances = {};
-let active = null;
+let activeEl = null;
 
 // Show one manager
 export function showManager(id) {
   hideManagers();
 
-  if (!instances[id]) {
-    const el = managers[id].create();
-    el.classList.add("manager-page");
-    root.appendChild(el);
-    instances[id] = el;
-  }
+  const el = managers[id].create();
+  el.classList.add("manager-page");
 
-  instances[id].classList.remove("hidden");
-  active = id;
+  root.appendChild(el);
+  activeEl = el;
 
   // Hide BrowserViews
   window.electronAPI?.hideAllBrowserViews?.();
 }
 
-// Hide all managers
+// Hide current manager
 export function hideManagers() {
-  Object.values(instances).forEach(el => {
-    el.classList.add("hidden");
-  });
-  active = null;
+  if (!activeEl) return;
+
+  // allow manager cleanup
+  if (typeof activeEl.cleanup === "function") {
+    activeEl.cleanup();
+  }
+
+  root.innerHTML = "";
+  activeEl = null;
 }

@@ -28,6 +28,16 @@ contextBridge.exposeInMainWorld("electronAPI", {
   selectSCID: (scid) => ipcRenderer.send("scid:select", scid),
   onSCIDSelected: (cb) => ipcRenderer.on("scid:select", (_, scid) => cb(scid)),
 
+  checkGnomon: () => ipcRenderer.invoke("check-gnomon"),
+  getGnomonInfo: () => ipcRenderer.invoke("gnomon:get-info"),
+
+  gnomonStart: () => ipcRenderer.invoke("gnomon:start"),
+  gnomonStop: () => ipcRenderer.invoke("gnomon:stop"),
+
+  onGnomonLog: (callback) => ipcRenderer.on("gnomon-log", (_, log) => callback(log)),
+  onGnomonExit: (callback) => ipcRenderer.on("gnomon-exit", (_, data) => callback(data)),
+  
+
   hideAllBrowserViews: () => ipcRenderer.invoke("browserviews:hide-all")
 
 });

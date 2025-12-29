@@ -1,6 +1,15 @@
+let gnomonProcess = null;
+
 const { app, BrowserWindow, BrowserView, ipcMain } = require("electron");
 const path = require("path");
 const fs = require("fs");
+
+const http = require("http"); // -- Gnomon
+
+const { spawn } = require("child_process");
+
+
+
 
 // ---------------- Bookmarks ----------------
 const scidBookmarkFile = path.join(app.getPath("userData"), "scidBookmarks.json");
@@ -23,6 +32,121 @@ function saveJSON(file, data) {
     console.error("Save JSON error:", err);
   }
 }
+
+// ---------------- Gnomon ----------------
+
+/* ---- Gnomon status check ---- */
+ipcMain.handle("check-gnomon", () => {
+  return new Promise((resolve) => {
+    const req = http.get(
+      "http://127.0.0.1:8099",
+      { timeout: 1500 },
+      (res) => {
+        resolve(res.statusCode >= 200 && res.statusCode < 500);
+        res.resume();
+      }
+    );
+
+    req.on("error", () => resolve(false));
+    req.on("timeout", () => {
+      req.destroy();
+      resolve(false);
+    });
+  });
+});
+
+
+/* ---- Gnomon getInfo ---- */
+ipcMain.handle("gnomon:get-info", async () => {
+  return new Promise((resolve) => {
+    const req = http.get(
+      "http://127.0.0.1:8099/api/getinfo",
+      { timeout: 1500 },
+      (res) => {
+        let data = "";
+
+        res.on("data", chunk => data += chunk);
+        res.on("end", () => {
+          try {
+            resolve(JSON.parse(data));
+          } catch {
+            resolve(null);
+          }
+        });
+      }
+    );
+
+    req.on("error", () => resolve(null));
+    req.on("timeout", () => {
+      req.destroy();
+      resolve(null);
+    });
+  });
+});
+
+// -------------------- Gnomon Start/Stop ---------------------------------
+
+ipcMain.handle("gnomon:start", async () => {
+  if (gnomonProcess) return { running: true };
+
+  const gnomonPath = path.join(__dirname, "resources", "gnomonindexer");
+
+  gnomonProcess = spawn(gnomonPath, [
+    "--daemon-rpc-address=192.168.1.154:10102",
+    "--fastsync",
+    "--num-parallel-blocks=5",
+    "--api-address=127.0.0.1:8099",
+    '--search-filter="telaVersion"'
+  ]);
+
+  // Send live stdout logs to renderer
+  gnomonProcess.stdout.on('data', (data) => {
+    const str = data.toString();
+    mainWindow.webContents.send('gnomon-log', str);
+
+    // 🔹 Detect new SCID indexed lines (adjust regex to your output)
+    const match = str.match(/Indexed SCID:\s+([a-z0-9]+)/i);
+    if (match) {
+      const scid = match[1];
+      mainWindow.webContents.send('gnomon-new-scid', scid);
+    }
+  });
+
+  // Send live stderr logs to renderer
+  gnomonProcess.stderr.on("data", (data) => {
+    if (mainWindow && !mainWindow.isDestroyed()) {
+      mainWindow.webContents.send("gnomon-log", data.toString());
+    }
+  });
+
+  // Handle process exit
+  gnomonProcess.on("exit", (code) => {
+    gnomonProcess = null;
+    if (mainWindow && !mainWindow.isDestroyed()) {
+      mainWindow.webContents.send("gnomon-exit", { code });
+    }
+  });
+
+   // 🔹 Notify the renderer (start.html) that Gnomon started
+  if (mainWindow && !mainWindow.isDestroyed()) {
+    mainWindow.webContents.send('gnomon-started');
+  }
+
+  return { started: true };
+});
+
+ipcMain.handle("gnomon:stop", async () => {
+  if (!gnomonProcess) return { running: false };
+
+  gnomonProcess.kill("SIGINT");
+  gnomonProcess = null;
+
+  if (mainWindow && !mainWindow.isDestroyed()) {
+    mainWindow.webContents.send("gnomon-exit", { code: null });
+  }
+
+  return { stopped: true };
+});
 
 // ---------------- Bookmark IPC ----------------
 ipcMain.handle("scid:load", () => loadJSON(scidBookmarkFile));
@@ -320,3 +444,64 @@ app.on("activate", () => {
 app.on("window-all-closed", () => {
   if (process.platform !== "darwin") app.quit();
 });
+
+
+// ---------------- Gnomon clean shutdown ----------------
+
+function stopGnomonAndWait() {
+  return new Promise((resolve) => {
+    if (!gnomonProcess) return resolve();
+
+    console.log("Stopping Gnomon and waiting for exit...");
+
+    // Listen for exit
+    gnomonProcess.once("exit", () => {
+      gnomonProcess = null;
+      console.log("Gnomon exited.");
+      resolve();
+    });
+
+    // Send kill signal
+    gnomonProcess.kill("SIGINT");
+
+    // Safety timeout in case Gnomon doesn't exit
+    setTimeout(() => {
+      if (gnomonProcess) {
+        console.log("Gnomon did not exit in time, forcing kill.");
+        gnomonProcess.kill("SIGKILL");
+        gnomonProcess = null;
+      }
+      resolve();
+    }, 5000); // 5 seconds timeout
+  });
+}
+
+// Hook into app shutdown
+app.on("before-quit", async (e) => {
+  if (gnomonProcess) {
+    e.preventDefault(); // Pause quitting
+    await stopGnomonAndWait();
+    app.quit(); // Resume quit after Gnomon stops
+  }
+});
+
+app.on("window-all-closed", async () => {
+  if (process.platform !== "darwin") {
+    if (gnomonProcess) {
+      await stopGnomonAndWait();
+    }
+    app.quit();
+  }
+});
+
+// Catch unexpected exits
+process.on("SIGINT", async () => {
+  await stopGnomonAndWait();
+  process.exit();
+});
+
+process.on("SIGTERM", async () => {
+  await stopGnomonAndWait();
+  process.exit();
+});
+

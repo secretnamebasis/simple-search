@@ -417,6 +417,28 @@ html, body {
 }
 
 /* =========================================================
+   GNOMON MANAGER
+   ========================================================= */
+
+.gnomon-manager {
+  padding: 20px 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.gnomon-manager h2 {
+  margin-bottom: 20px;
+}
+
+.gnomon-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 16px;
+}
+
+/* =========================================================
    MANUAL THEME OVERRIDES (for toggle)
    ========================================================= */
 
@@ -447,4 +469,32 @@ html, body {
 /* System mode inherits prefers-color-scheme media query */
 :root[data-theme="system"] {
   /* no extra CSS needed */
+}
+
+/* =========================================================
+   LED INDICATOR for GNOMON
+   ========================================================= */
+
+.led {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  display: inline-block;
+  margin-right: 8px;
+  box-shadow: 0 0 4px rgba(0,0,0,0.5);
+}
+
+.red {
+  background: #ff3b3b;
+  box-shadow: 0 0 8px #ff3b3b;
+}
+
+.yellow {
+  background: #ffc107;
+  box-shadow: 0 0 8px #ffc107;
+}
+
+.green {
+  background: #00e676;
+  box-shadow: 0 0 8px #00e676;
 }

@@ -59,19 +59,35 @@ npm start
 
 ### Core
 - [ ] Only index.html pages will load (most dApps are good), considering a solution to this, but yeah many options...
-- [ ] Sidebar collapse when pointer leaves, closes onClick somewhere outside sidebar
-- [ ] Gnomon settings menu + Gnomon alive/ready indicator
-- [ ] Autostart tela-server and Gnomon 
 - [ ] Human-readable domain names for nodes
+- [ ] Rethink node settings
+
+### Tabs
 - [ ] Live tab title updates when not resolved
+- [ ] Allows users to rearrange tabs
+
+### Search
+- [ ] Startpage refresh on Gnomon start
+
+### Setting Manager
+- [x] Settings Manager Menu
+- [x] Light/Dark/System
+- [ ] Start/Stop/Autostart TELA-Server 
+
+### Gnomon Manager
+- [x] Gnomon Manager Menu
+- [x] Gnomon alive/ready indicator
+- [x] Start/Stop Gnomon
+- [ ] Autostart Gnomon
+- [ ] Startpage refresh on Gnomon start 
 
 ### Search
 - [ ] Ratings filter
 
 ### User experience
+- [ ] Sidebar collapse when pointer leaves, closes onClick somewhere outside sidebar
 - [ ] Special characters in the SCID and Node entry won't bookmark, no need for but yeah UX
 - [ ] Not all dApps align good in the browserview, it works but need perfection
-- [x] Re-write color schemes so that dark/light/system mode works 
 - [ ] With really big dApps there isn't a instant page view (I mean more than 3/4 sec) UX solution is showing what is going on in the background or an animation.
 - [ ] Consistent interface
 
