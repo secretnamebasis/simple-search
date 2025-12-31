@@ -2,7 +2,7 @@ let gnomonProcess = null;
 let telaServerProcess = null;
 
 
-const { app, BrowserWindow, BrowserView, ipcMain } = require("electron");
+const { app, BrowserWindow, BrowserView, ipcMain, shell } = require("electron");
 const path = require("path");
 const fs = require("fs");
 
@@ -13,20 +13,46 @@ const { spawn } = require("child_process");
 
 const gnomonConfigFile = path.join(app.getPath("userData"), "gnomonConfig.json");
 
-// Helper: decide if a URL is external
+// ------------Opem http(s) in standard browser ---------------
+
+app.on("web-contents-created", (_, contents) => {
+
+  contents.setWindowOpenHandler(({ url }) => {
+    if (isExternal(url)) {
+      shell.openExternal(url);
+      return { action: "deny" };
+    }
+    return { action: "allow" };
+  });
+
+  contents.on("will-navigate", (event, url) => {
+    if (isExternal(url)) {
+      event.preventDefault();
+      shell.openExternal(url);
+    }
+  });
+
+});
+
 function isExternal(link) {
   try {
-    const parsed = new URL(link, `file://${__dirname}/`);
+    const parsed = new URL(link);
+
+    // ✅ Treat ANY localhost / 127.0.0.1 (any port) as INTERNAL
+    if (
+      parsed.hostname === "localhost" ||
+      parsed.hostname === "127.0.0.1"
+    ) {
+      return false;
+    }
+
+    // External http(s)
     return parsed.protocol === "http:" || parsed.protocol === "https:";
   } catch {
-    // If parsing fails, assume it's local
+    // If URL parsing fails, assume it's internal
     return false;
   }
 }
-
-
-
-
 
 // ---------------- Bookmarks ----------------
 const scidBookmarkFile = path.join(app.getPath("userData"), "scidBookmarks.json");
