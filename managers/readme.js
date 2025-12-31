@@ -7,11 +7,10 @@ export function createReadMe() {
 
   <h3>Nodes</h3>
 
-  <p>
-    For the best experience you run your own local node. With a local node most TELA dApp and Site browsing will be fast and instantaneous. <br>
-    When using a remote node expect less speed when browsing, but it still works.<br>
-    Software to run your own local node you will find here:<br>
-    <a href="https://github.com/deroproject/derohe/releases">https://github.com/deroproject/derohe/releases</a>
+  <p>For the best experience, we recommend running your own local node. A local node will load TELA dApps and sites quickly, delivering fast and instantaneous performance.</p>
+  <p>If you choose to use a remote node, you may experience slower loading times, though functionality remains intact.</p>
+  <p>You can find software to run your own local node here:<br>
+  <a href="https://github.com/deroproject/derohe/releases">https://github.com/deroproject/derohe/releases</a>
   </p>
   `;
   return el;

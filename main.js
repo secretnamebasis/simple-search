@@ -2,37 +2,30 @@ let gnomonProcess = null;
 let telaServerProcess = null;
 
 
-const { app, BrowserWindow, BrowserView, ipcMain, shell } = require("electron");
+const { app, BrowserWindow, BrowserView, ipcMain } = require("electron");
 const path = require("path");
 const fs = require("fs");
+
 
 const http = require("http"); // -- Gnomon
 
 const { spawn } = require("child_process");
 
 const gnomonConfigFile = path.join(app.getPath("userData"), "gnomonConfig.json");
-// -----------Always open http(s) links in standard browser ----------------
 
-app.on("web-contents-created", (_, contents) => {
+// Helper: decide if a URL is external
+function isExternal(link) {
+  try {
+    const parsed = new URL(link, `file://${__dirname}/`);
+    return parsed.protocol === "http:" || parsed.protocol === "https:";
+  } catch {
+    // If parsing fails, assume it's local
+    return false;
+  }
+}
 
-  // Catch window.open(), target="_blank", etc.
-  contents.setWindowOpenHandler(({ url }) => {
-    if (/^https?:\/\//i.test(url)) {
-      shell.openExternal(url);
-      return { action: "deny" };
-    }
-    return { action: "allow" };
-  });
 
-  // Catch in-app navigation (href clicks)
-  contents.on("will-navigate", (event, url) => {
-    if (/^https?:\/\//i.test(url)) {
-      event.preventDefault();
-      shell.openExternal(url);
-    }
-  });
 
-});
 
 
 // ---------------- Bookmarks ----------------
