@@ -1,4 +1,7 @@
 let gnomonProcess = null;
+let gnomonLogBuffer = [];
+const MAX_GNOMON_LOG_LINES = 5000;
+
 let telaServerProcess = null;
 
 
@@ -6,27 +9,27 @@ const { app, BrowserWindow, BrowserView, ipcMain, shell } = require("electron");
 const path = require("path");
 const fs = require("fs");
 
+
 const http = require("http"); // -- Gnomon
 
 const { spawn } = require("child_process");
 
 const gnomonConfigFile = path.join(app.getPath("userData"), "gnomonConfig.json");
-// -----------Always open http(s) links in standard browser ----------------
+
+// ------------Open http(s) in standard browser ---------------
 
 app.on("web-contents-created", (_, contents) => {
 
-  // Catch window.open(), target="_blank", etc.
   contents.setWindowOpenHandler(({ url }) => {
-    if (/^https?:\/\//i.test(url)) {
+    if (isExternal(url)) {
       shell.openExternal(url);
       return { action: "deny" };
     }
     return { action: "allow" };
   });
 
-  // Catch in-app navigation (href clicks)
   contents.on("will-navigate", (event, url) => {
-    if (/^https?:\/\//i.test(url)) {
+    if (isExternal(url)) {
       event.preventDefault();
       shell.openExternal(url);
     }
@@ -34,6 +37,25 @@ app.on("web-contents-created", (_, contents) => {
 
 });
 
+function isExternal(link) {
+  try {
+    const parsed = new URL(link);
+
+    // ✅ Treat ANY localhost / 127.0.0.1 (any port) as INTERNAL
+    if (
+      parsed.hostname === "localhost" ||
+      parsed.hostname === "127.0.0.1"
+    ) {
+      return false;
+    }
+
+    // External http(s)
+    return parsed.protocol === "http:" || parsed.protocol === "https:";
+  } catch {
+    // If URL parsing fails, assume it's internal
+    return false;
+  }
+}
 
 // ---------------- Bookmarks ----------------
 const scidBookmarkFile = path.join(app.getPath("userData"), "scidBookmarks.json");
@@ -92,7 +114,26 @@ let gnomonNodeAddress = loadGnomonConfig().node;
 
 // ---------------- Gnomon ----------------
 
-/* ---- Gnomon status check ---- */
+/* ---------- Log buffer helper ---------- */
+function pushGnomonLog(str) {
+  if (!str) return;
+
+  gnomonLogBuffer.push(str);
+
+  // Prevent memory bloat
+  if (gnomonLogBuffer.length > MAX_GNOMON_LOG_LINES) {
+    gnomonLogBuffer.splice(
+      0,
+      gnomonLogBuffer.length - MAX_GNOMON_LOG_LINES
+    );
+  }
+
+  if (mainWindow && !mainWindow.isDestroyed()) {
+    mainWindow.webContents.send("gnomon-log", str);
+  }
+}
+
+/* ---------- IPC: status check ---------- */
 ipcMain.handle("check-gnomon", () => {
   return new Promise((resolve) => {
     const req = http.get(
@@ -112,41 +153,20 @@ ipcMain.handle("check-gnomon", () => {
   });
 });
 
-
-/* ---- Gnomon getInfo ---- */
-ipcMain.handle("gnomon:get-info", async () => {
-  return new Promise((resolve) => {
-    const req = http.get(
-      "http://127.0.0.1:8099/api/getinfo",
-      { timeout: 1500 },
-      (res) => {
-        let data = "";
-
-        res.on("data", chunk => data += chunk);
-        res.on("end", () => {
-          try {
-            resolve(JSON.parse(data));
-          } catch {
-            resolve(null);
-          }
-        });
-      }
-    );
-
-    req.on("error", () => resolve(null));
-    req.on("timeout", () => {
-      req.destroy();
-      resolve(null);
-    });
-  });
+/* ---------- IPC: get log buffer ---------- */
+ipcMain.handle("gnomon:get-log-buffer", () => {
+  // Send only last N lines
+  const slice = gnomonLogBuffer.slice(-500);
+  return slice.join("");
 });
 
-// -------------------- Gnomon Start/Stop ---------------------------------
-
+/* ---------- IPC: start Gnomon ---------- */
 ipcMain.handle("gnomon:start", async () => {
   if (gnomonProcess) return { running: true };
 
   const gnomonPath = path.join(__dirname, "resources", "gnomonindexer");
+
+  gnomonLogBuffer.push("\n--- Gnomon starting ---\n");
 
   gnomonProcess = spawn(gnomonPath, [
     `--daemon-rpc-address=${gnomonNodeAddress}`,
@@ -156,55 +176,49 @@ ipcMain.handle("gnomon:start", async () => {
     '--search-filter="telaVersion"'
   ]);
 
-  // Send live stdout logs to renderer
-  gnomonProcess.stdout.on('data', (data) => {
+  gnomonProcess.stdout.on("data", (data) => {
     const str = data.toString();
-    mainWindow.webContents.send('gnomon-log', str);
+    pushGnomonLog(str);
 
-    // 🔹 Detect new SCID indexed lines (adjust regex to your output)
+    // Detect indexed SCIDs
     const match = str.match(/Indexed SCID:\s+([a-z0-9]+)/i);
-    if (match) {
-      const scid = match[1];
-      mainWindow.webContents.send('gnomon-new-scid', scid);
+    if (match && mainWindow && !mainWindow.isDestroyed()) {
+      mainWindow.webContents.send("gnomon-new-scid", match[1]);
     }
   });
 
-  // Send live stderr logs to renderer
   gnomonProcess.stderr.on("data", (data) => {
-    if (mainWindow && !mainWindow.isDestroyed()) {
-      mainWindow.webContents.send("gnomon-log", data.toString());
-    }
+    pushGnomonLog(data.toString());
   });
 
-  // Handle process exit
-  gnomonProcess.on("exit", (code) => {
+  gnomonProcess.once("exit", (code) => {
+    pushGnomonLog(`\n--- Gnomon exited (code ${code}) ---\n`);
     gnomonProcess = null;
+
     if (mainWindow && !mainWindow.isDestroyed()) {
       mainWindow.webContents.send("gnomon-exit", { code });
     }
   });
 
-   // 🔹 Notify the renderer (start.html) that Gnomon started
   if (mainWindow && !mainWindow.isDestroyed()) {
-    mainWindow.webContents.send('gnomon-started');
+    mainWindow.webContents.send("gnomon-started");
   }
 
   return { started: true };
 });
 
+/* ---------- IPC: stop Gnomon ---------- */
 ipcMain.handle("gnomon:stop", async () => {
   if (!gnomonProcess) return { running: false };
 
+  pushGnomonLog("\n--- Stopping Gnomon ---\n");
+
   gnomonProcess.kill("SIGINT");
-  gnomonProcess = null;
 
-  if (mainWindow && !mainWindow.isDestroyed()) {
-    mainWindow.webContents.send("gnomon-exit", { code: null });
-  }
-
-  return { stopped: true };
+  return { stopping: true };
 });
 
+  
 // ---------- IPC to apply the node address to Gnomon -------------------
 ipcMain.handle("gnomon:apply-node", async (event, nodeAddress) => {
   if (!nodeAddress || typeof nodeAddress !== "string") {
@@ -362,6 +376,7 @@ function hideModalOverlay() {
   currentModalView = null;
 }
 
+// ---------------- TELA START ------------------
 // ---------------- Tabs / SCIDs ----------------
 ipcMain.handle("tela:start", async (event, { node, scid }) => {
   try {
@@ -401,9 +416,24 @@ ipcMain.handle("tela:start", async (event, { node, scid }) => {
       return { id: tabId };
     }
 
-    const res = await fetch(`http://127.0.0.1:4040/add/${scid}?node=${encodeURIComponent(node)}`);
-    if (!res.ok) throw new Error(`Tela registration failed: ${res.status}`);
+    // ---------------- Register SCID ----------------
+const addRes = await fetch(`http://127.0.0.1:4040/add/${scid}?node=${encodeURIComponent(node)}`);
+if (!addRes.ok) throw new Error(`Failed to add SCID ${scid}`);
 
+const text = await addRes.text();
+
+// Handle both cases: new SCID vs already loaded
+let scidURL;
+if (text.startsWith("OK: ")) {
+    scidURL = text.slice(4).trim();
+} else if (text.startsWith("OK (already loaded): ")) {
+    scidURL = text.slice("OK (already loaded): ".length).trim();
+} else {
+    throw new Error("Invalid SCID URL returned by TELA server");
+}
+
+
+    // ---------------- Create new tab ----------------
     const tabId = `tab-${Date.now()}`;
     activeScids.set(scid, tabId);
 
@@ -419,8 +449,8 @@ ipcMain.handle("tela:start", async (event, { node, scid }) => {
 
     browserViews.set(tabId, view);
 
-    const url = `http://localhost:4040/tela/${scid}/`;
-    await view.webContents.loadURL(url);
+    // ---------------- Load the SCID ----------------
+    await view.webContents.loadURL(encodeURI(scidURL));
 
         setTimeout(() => {
       if (!mainWindow || !browserViews.has(tabId)) return;

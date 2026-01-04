@@ -49,7 +49,7 @@ npm start
 ### Core
 - [x] Autostart TELA-Server
 - [ ] Autostart Gnomon 
-- [ ] Only index.html pages will load (most dApps are good), considering a solution to this, but yeah many options...
+- [x] Resolved entry html rawURL (Solved:~~Only index.html pages load~~)
 
 ### Input (NODE)
 - [ ] Human-readable domain names for nodes
@@ -78,7 +78,7 @@ npm start
 - [x] Start/Stop Gnomon
 - [ ] Startpage refresh on Gnomon start
 - [ ] Display getInfo
-- [ ] Saved Live Logs on page change/refresh
+- [x] Keeping the log listener alive
 
 ### Readme Page
 - [ ] How to run you own node Guide
